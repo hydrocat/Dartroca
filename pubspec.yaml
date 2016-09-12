@@ -1,0 +1,4 @@
+name: Dartroca
+description: Jogo semelhante ao letroca
+dependencies: 
+    console: any
