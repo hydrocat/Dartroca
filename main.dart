@@ -35,7 +35,7 @@ final Map<String,String> errors = {
 
 Map gameParam = new Map();
 
-int main( List<String> arguments ) {
+int main( List<String> arguments ) async  {
 
 	//inicia a biblioteca console
 		Console.init();
@@ -43,13 +43,11 @@ int main( List<String> arguments ) {
 	// Le os parametros
 	parseArgs(arguments);
 	// Busca a pagina do wikipedia
-	 searchWiki();
+	await searchWiki();
 	// Inicia o jogo
-//	 startGame();
-
-//	print(gameParam["words"]);
+	startGame();
 	// Loop do jogo 
-	//	gameLoop();
+	gameLoop();
 
 	return 0;
 }
@@ -95,7 +93,6 @@ void normalize(String s){
 }
 
 
-
 parseArgs( List<String> args ) {
 
 	try {
@@ -108,6 +105,7 @@ parseArgs( List<String> args ) {
 		exit(1);
 	}
 }
+
 searchWiki() async{
 	//codigo que busca do wiki
 	var url = 'http://pt.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&explaintext=&titles='+gameParam["subject"]+'&exsectionformat=plain';
@@ -120,9 +118,9 @@ searchWiki() async{
 	//gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
 	//ordena as palavras em ordem crescente
 	gameParam["words"].sort((b,a) => a.length.compareTo(b.length));
-	gameParam["wordAmount"] = gameParam["words"].length;
-	gameParam["letterAmount"] = "linguagem".length;
-	gameParam["subject"] = "Dart";
+	//gameParam["wordAmount"] = gameParam["words"].length;
+	//gameParam["letterAmount"] = "linguagem".length;
+	//gameParam["subject"] = "Dart";
 
 	await ChooseWord();
 	//o codigo final deve colocar em "palavras" as palavras escolhidas e buscadas do wiki
@@ -215,7 +213,6 @@ void ChooseWord()
 	gameParam["words"].clear();
 	m["word"].forEach((w) {gameParam["words"].add(w);});
 	
-	print(gameParam["words"]);
 }
 
 // Inicia o jogo
