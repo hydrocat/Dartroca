@@ -67,14 +67,104 @@ searchWiki(){
 
 	//aqui, coloquei algumas palavras para testar
 	gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
+	//ordena as palavras em ordem crescente
+	gameParam["words"].sort((b,a) => a.length.compareTo(b.length));
 	gameParam["wordAmount"] = gameParam["words"].length;
 	gameParam["letterAmount"] = "linguagem".length;
 	gameParam["subject"] = "Dart";
-
+	
+	ChooseWord();
 	//o codigo final deve colocar em "palavras" as palavras escolhidas e buscadas do wiki
 	//utilize de gameParam para obter as informacoes nescessarias para esta parte do jogo,
 	//como a quantidade de letras e o assunto (ou, pagina do wiki) que sera utilizada
 }
+
+	
+
+void ChooseWord()
+{
+	//pega todas as palavras que têm o tamanho correto
+	List newWords = new List<String>();
+	gameParam['words'].forEach( (w){
+		if (w.length <= gameParam["letterAmount"]){
+			newWords.add(w);
+		}
+	});
+	//modificar isso aqui
+	gameParam['words'] = newWords;
+	
+	//extrai as letras de uma palavra (primeira) e conta quantas tem
+	var characters = [];
+	var count = [];
+	for(var i in newWords[0].codeUnits)	{
+		var index = characters.indexOf(i);
+		if (index == -1){
+			characters.add(i);
+			count.add(1);
+		}
+		else{
+			count[index]++;
+		}
+	}
+	/////////////////////////
+	//cria um mapa com as letras e quantidade de letras
+	var m = new Map();
+	m["char"] = [];
+	m["count"] = [];
+	m["word"] = [];
+	m["char"].add(characters);
+	m["count"].add(count);
+	m["word"].add(newWords[0]);
+	//percorre a lista de palavras
+	for (var i = 1; i<newWords.length; i++) {
+		var charaux = [];
+		var countaux = [];
+		//percorre a palavra selecionada
+		for (var j in newWords[i].codeUnits){
+			var index = m["word"][0].codeUnits.indexOf(j);
+			var indexaux = charaux.indexOf(j);
+			//se nao encontrou a letra na primeira palavra ja finaliza
+			if (index == -1){
+				charaux = [];
+				countaux = [];
+				break;
+			}
+			//senao ele cria a nova letra ou soma no indice
+			else if (indexaux == -1){
+				charaux.add(j);	
+				countaux.add(1);
+
+			}
+				else {
+					countaux[indexaux]++;
+				}	
+
+		}
+		//se há alguma palavra entao verifica se a quantidade de letras é suficiente
+		if (charaux.length != 0){
+			var verif = true;
+			//percorre a palavra
+			for(var k = 0; k< charaux.length; k++){
+				var index = m["char"][0].indexOf(charaux[k]);
+				if (countaux[k] > m["count"][0][index])
+				{
+					verif = false;
+				}
+				
+			}
+			if (verif)
+			{
+				m["char"].add(charaux);
+				m["count"].add(countaux);
+				m["word"].add(newWords[i]);
+			}
+		}
+
+	}
+	gameParam["words"] = m["word"];
+
+}
+
 // Inicia o jogo
 startGame(){
 	//draw();
@@ -122,6 +212,8 @@ void endGame(){
 }
 
 void input(){
+//	var me = gameParam['prompt'].promptSync();
+//	print("minha palavra ${me}");
 	gameParam['input'] = gameParam['prompt'].promptSync();
 	gameParam['input'].split('').forEach((l){
 		gameParam['usedLetters'].add(l);
@@ -129,9 +221,13 @@ void input(){
 }
 
 void process(){
+	var qtd = gameParam['words'].length;
+	if (qtd > gameParam['wordAmount']){
+		qtd = gameParam['wordAmount'];
+	}
 	var input = gameParam['input'];
 	input.split('').forEach( (l){
-		for( num i = 0; i<gameParam['wordAmount']; i++ ){
+		for( num i = 0; i<qtd; i++ ){
 			if( gameParam['words'][i].contains(l) ){
 				String real = gameParam['words'][i];
 				String fake = gameParam['visibleWords'][i];
