@@ -2,3 +2,6 @@ name: Dartroca
 description: Jogo semelhante ao letroca
 dependencies: 
     console: any
+    json:
+    validator: ">=0.0.4 <0.1.0"
+    http: 

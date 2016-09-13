@@ -1,31 +1,33 @@
 import "dart:core";
 import "dart:io";
 import "dart:async";
+import 'package:validator/validator.dart';
+import 'dart:convert';
 import "package:console/console.dart";
 import "package:http/http.dart" as http;
 /*
-	Passos:
-	- Le os parametros
-   		* parametros: 
-			-> Maximo de letras da palavra
-			-> Quantidade de Palavras
-			-> Assunto
+   Passos:
+   - Le os parametros
+ * parametros: 
+ -> Maximo de letras da palavra
+ -> Quantidade de Palavras
+ -> Assunto
 
-	- Busca a pagina do wikipedia
-		* preprocessa
-			-> tirando conectivos como "e" "com" "portanto"
-			-> retorna uma Lista de String
+ - Busca a pagina do wikipedia
+ * preprocessa
+ -> tirando conectivos como "e" "com" "portanto"
+ -> retorna uma Lista de String
 
-	- Inicia o jogo
-		* Escreve os espacos das palavras na tela
-		* Escreve as Letras disponiveis para serem usadas
-		* Desenha a tela
+ - Inicia o jogo
+ * Escreve os espacos das palavras na tela
+ * Escreve as Letras disponiveis para serem usadas
+ * Desenha a tela
 
-	- Loop do jogo 
-		* Le uma letra do teclado 
-		* Escreve as ocorrencias ( Desenha a tela de novo )
-		* Quando todas as palavras estiverem escritas, termina o jogo
-*/
+ - Loop do jogo 
+ * Le uma letra do teclado 
+ * Escreve as ocorrencias ( Desenha a tela de novo )
+ * Quando todas as palavras estiverem escritas, termina o jogo
+ */
 final Map<String,String> errors = {
 	"usage":"dart Dartroca.dart <qtd Palavras> <qtd Letras> <Assunto das Palavras>",
 	"missingArgs":"faltam argumentos",
@@ -36,19 +38,63 @@ Map gameParam = new Map();
 int main( List<String> arguments ) {
 
 	//inicia a biblioteca console
-	Console.init();
+		Console.init();
 
 	// Le os parametros
 	parseArgs(arguments);
 	// Busca a pagina do wikipedia
-	searchWiki();
+	 searchWiki();
 	// Inicia o jogo
-	startGame();
+//	 startGame();
+
+//	print(gameParam["words"]);
 	// Loop do jogo 
-	gameLoop();
+	//	gameLoop();
 
 	return 0;
 }
+void normalize(String s){
+	s = s.toUpperCase();
+	s = s.replaceAll("Ã","A");
+	s = s.replaceAll("Â","A");
+	s = s.replaceAll("Õ","O");
+	s = s.replaceAll("Ô","O");
+	s = s.replaceAll("Ê","E");
+	s = s.replaceAll("Î","I");
+	s = s.replaceAll("Û","U");
+	s = s.replaceAll("À","A");
+	s = s.replaceAll("Á","A");
+	s = s.replaceAll("È","E");
+	s = s.replaceAll("É","E");
+	s = s.replaceAll("Í","I");
+	s = s.replaceAll("Ì","I");
+	s = s.replaceAll("Ó","O");
+	s = s.replaceAll("Ò","O");
+	s = s.replaceAll("Ú","U");
+	s = s.replaceAll("Ù","U");
+	s = s.replaceAll("Ç","C");
+	s = s.replaceAll(",", "");
+	s = s.replaceAll(".", "");
+	s = s.replaceAll("[", "");
+	s = s.replaceAll("]", "");
+	s = s.replaceAll("{", "");
+	s = s.replaceAll("}", "");
+	s = s.replaceAll("(", "");
+	s = s.replaceAll(")", "");
+	s = s.replaceAll("-", "");
+	s = s.replaceAll("'", "");
+	s = s.replaceAll('"', "");
+	s = s.replaceAll(";", "");
+	s = s.replaceAll("?", "");
+	s = s.replaceAll("/", "");
+	s = s.replaceAll(":", "");
+	s = s.replaceAll("", "");
+	s = stripLow(s, false);
+	s = s.split(" ");
+	return s;
+}
+
+
 
 parseArgs( List<String> args ) {
 
@@ -64,23 +110,27 @@ parseArgs( List<String> args ) {
 }
 searchWiki() async{
 	//codigo que busca do wiki
-	var words = await http.read("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&explaintext=&titles=life&exsectionformat=plain");
+	var url = 'http://pt.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&explaintext=&titles='+gameParam["subject"]+'&exsectionformat=plain';
+	var rawText = await http.read(url);
+	var jWord = JSON.decode(rawText); 
+
+	gameParam["words"] = normalize(jWord.toString());
 
 	//aqui, coloquei algumas palavras para testar
-	gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
+	//gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
 	//ordena as palavras em ordem crescente
 	gameParam["words"].sort((b,a) => a.length.compareTo(b.length));
 	gameParam["wordAmount"] = gameParam["words"].length;
 	gameParam["letterAmount"] = "linguagem".length;
 	gameParam["subject"] = "Dart";
-	
-	ChooseWord();
+
+	await ChooseWord();
 	//o codigo final deve colocar em "palavras" as palavras escolhidas e buscadas do wiki
 	//utilize de gameParam para obter as informacoes nescessarias para esta parte do jogo,
 	//como a quantidade de letras e o assunto (ou, pagina do wiki) que sera utilizada
 }
 
-	
+
 
 void ChooseWord()
 {
@@ -93,7 +143,7 @@ void ChooseWord()
 	});
 	//modificar isso aqui
 	gameParam['words'] = newWords;
-	
+
 	//extrai as letras de uma palavra (primeira) e conta quantas tem
 	var characters = [];
 	var count = [];
@@ -136,9 +186,9 @@ void ChooseWord()
 				countaux.add(1);
 
 			}
-				else {
-					countaux[indexaux]++;
-				}	
+			else {
+				countaux[indexaux]++;
+			}	
 
 		}
 		//se há alguma palavra entao verifica se a quantidade de letras é suficiente
@@ -151,7 +201,7 @@ void ChooseWord()
 				{
 					verif = false;
 				}
-				
+
 			}
 			if (verif)
 			{
@@ -162,15 +212,17 @@ void ChooseWord()
 		}
 
 	}
-	gameParam["words"] = m["word"];
-
+	gameParam["words"].clear();
+	m["word"].forEach((w) {gameParam["words"].add(w);});
+	
+	print(gameParam["words"]);
 }
 
 // Inicia o jogo
 startGame(){
 	//draw();
 	gameParam['visibleWords'] = new List<String>();
-	gameParam['words'].forEach( (w){
+	gameParam["words"].forEach( (w){
 		gameParam['visibleWords'].add( '_' * w.length );
 	});
 
@@ -201,7 +253,7 @@ gameLoop(){
 		print( gameParam['end'] );
 		draw();
 	}
-	
+
 	endGame();
 }
 
@@ -213,8 +265,8 @@ void endGame(){
 }
 
 void input(){
-//	var me = gameParam['prompt'].promptSync();
-//	print("minha palavra ${me}");
+	//	var me = gameParam['prompt'].promptSync();
+	//	print("minha palavra ${me}");
 	gameParam['input'] = gameParam['prompt'].promptSync();
 	gameParam['input'].split('').forEach((l){
 		gameParam['usedLetters'].add(l);
