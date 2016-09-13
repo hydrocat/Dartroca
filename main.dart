@@ -38,8 +38,7 @@ Map gameParam = new Map();
 int main( List<String> arguments ) async  {
 
 	//inicia a biblioteca console
-		Console.init();
-
+	Console.init();
 	// Le os parametros
 	parseArgs(arguments);
 	// Busca a pagina do wikipedia
@@ -88,8 +87,9 @@ void normalize(String s){
 	s = s.replaceAll(":", "");
 	s = s.replaceAll("", "");
 	s = stripLow(s, false);
-	s = s.split(" ");
-	return s;
+	//s = s.split(" ");
+	Set<String> words = new Set<String>.from( s.split(" ") );
+	return new List.from(words);
 }
 
 
@@ -101,7 +101,7 @@ parseArgs( List<String> args ) {
 		gameParam["subject"] = args[2];
 	} catch ( ex ){
 		print( errors["usage"] );
-		print(ex);
+		//print(ex);
 		exit(1);
 	}
 }
@@ -113,6 +113,7 @@ searchWiki() async{
 	var jWord = JSON.decode(rawText); 
 
 	gameParam["words"] = normalize(jWord.toString());
+	print( gameParam['words'] );
 
 	//aqui, coloquei algumas palavras para testar
 	//gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
@@ -127,8 +128,6 @@ searchWiki() async{
 	//utilize de gameParam para obter as informacoes nescessarias para esta parte do jogo,
 	//como a quantidade de letras e o assunto (ou, pagina do wiki) que sera utilizada
 }
-
-
 
 void ChooseWord()
 {
@@ -210,14 +209,14 @@ void ChooseWord()
 		}
 
 	}
-	gameParam["words"].clear();
+//	gameParam["words"].clear();
 	m["word"].forEach((w) {gameParam["words"].add(w);});
+	gameParam['characters'] = new String.fromCharCodes( m['char'][0]);
 	
 }
 
 // Inicia o jogo
 startGame(){
-	//draw();
 	gameParam['visibleWords'] = new List<String>();
 	gameParam["words"].forEach( (w){
 		gameParam['visibleWords'].add( '_' * w.length );
@@ -238,7 +237,7 @@ draw() {
 		print(' $w');
 		print('');
 	});
-	print( gameParam['usedLetters'] );
+	print( gameParam['characters'] );
 }
 
 // Loop do jogo 
@@ -262,28 +261,17 @@ void endGame(){
 }
 
 void input(){
-	//	var me = gameParam['prompt'].promptSync();
-	//	print("minha palavra ${me}");
 	gameParam['input'] = gameParam['prompt'].promptSync();
-	gameParam['input'].split('').forEach((l){
-		gameParam['usedLetters'].add(l);
-	});
 }
 
 void process(){
-	var qtd = gameParam['words'].length;
-	if (qtd > gameParam['wordAmount']){
-		qtd = gameParam['wordAmount'];
-	}
-	var input = gameParam['input'];
-	input.split('').forEach( (l){
-		for( num i = 0; i<qtd; i++ ){
-			if( gameParam['words'][i].contains(l) ){
-				String real = gameParam['words'][i];
-				String fake = gameParam['visibleWords'][i];
-				gameParam['visibleWords'][i] = changeString(real,fake,l);
-			}
+	int index = 0;
+	gameParam['words'].forEach( (w) {
+		if( w == gameParam['input'] ){
+			gameParam['visibleWords'][index] = w;
 		}
+
+		index++;
 	});
 }
 
