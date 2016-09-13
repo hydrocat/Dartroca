@@ -2,7 +2,7 @@ import "dart:core";
 import "dart:io";
 import "dart:async";
 import "package:console/console.dart";
-
+import "package:http/http.dart" as http;
 /*
 	Passos:
 	- Le os parametros
@@ -62,8 +62,9 @@ parseArgs( List<String> args ) {
 		exit(1);
 	}
 }
-searchWiki(){
+searchWiki() async{
 	//codigo que busca do wiki
+	var words = await http.read("https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&explaintext=&titles=life&exsectionformat=plain");
 
 	//aqui, coloquei algumas palavras para testar
 	gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
