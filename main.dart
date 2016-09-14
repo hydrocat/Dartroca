@@ -83,6 +83,7 @@ void normalize(String s){
 	s = s.replaceAll('"', "");
 	s = s.replaceAll(";", "");
 	s = s.replaceAll("?", "");
+	s = s.replaceAll("...", "");
 	s = s.replaceAll("/", "");
 	s = s.replaceAll(":", "");
 	s = s.replaceAll("", "");
@@ -113,7 +114,7 @@ searchWiki() async{
 	var jWord = JSON.decode(rawText); 
 
 	gameParam["words"] = normalize(jWord.toString());
-	print( gameParam['words'] );
+	//print( gameParam['words'] );
 
 	//aqui, coloquei algumas palavras para testar
 	//gameParam["words"]=["dart","linguagem","cart","gel","lingua","arte","tela","ela","mega"];
@@ -139,7 +140,7 @@ void ChooseWord()
 		}
 	});
 	//modificar isso aqui
-	gameParam['words'] = newWords;
+	//gameParam['words'] = newWords;
 
 	//extrai as letras de uma palavra (primeira) e conta quantas tem
 	var characters = [];
@@ -215,7 +216,7 @@ void ChooseWord()
 		m["word"] = m["word"].getRange(0,gameParam["wordAmount"]);
 		m["char"] = m["char"].getRange(0,gameParam["wordAmount"]);
 	}
-	print(m["char"]);
+//	print(m["char"]);
 
 	gameParam["words"] = m["word"];
 	gameParam['characters'] = new List<String>.from(m["word"])[0].split('');
