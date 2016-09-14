@@ -134,7 +134,7 @@ void ChooseWord()
 	//pega todas as palavras que têm o tamanho correto
 	List newWords = new List<String>();
 	gameParam['words'].forEach( (w){
-		if (w.length <= gameParam["letterAmount"]){
+		if ((w.length <= gameParam["letterAmount"]) && (w.length > 2)){
 			newWords.add(w);
 		}
 	});
@@ -209,9 +209,17 @@ void ChooseWord()
 		}
 
 	}
-//	gameParam["words"].clear();
-	m["word"].forEach((w) {gameParam["words"].add(w);});
-	gameParam['characters'] = new String.fromCharCodes( m['char'][0]);
+	gameParam["words"].clear();
+
+	if (gameParam["wordAmount"] < m["word"].length){	
+		m["word"] = m["word"].getRange(0,gameParam["wordAmount"]);
+		m["char"] = m["char"].getRange(0,gameParam["wordAmount"]);
+	}
+	print(m["char"]);
+
+	gameParam["words"] = m["word"];
+	gameParam['characters'] = new List<String>.from(m["word"])[0].split('');
+	
 	
 }
 
@@ -224,12 +232,13 @@ startGame(){
 
 	gameParam['prompt'] = new Prompter('Digite uma letra: ');
 	gameParam['usedLetters'] = new Set<String>();
-	gameParam['end'] = false;
+	gameParam['end'] = 'P';
 	draw();
 }
 
 // Desenha a tela 
 draw() {
+	gameParam['characters'].shuffle();
 	Console.eraseDisplay(1);
 	Console.moveCursor();
 	Console.moveCursorDown();
@@ -242,7 +251,7 @@ draw() {
 
 // Loop do jogo 
 gameLoop(){
-	while( gameParam['end'] == false ){
+	while( gameParam['end'] == 'P' ){
 		input();	
 		process();	
 		checkEndGame();
@@ -254,10 +263,21 @@ gameLoop(){
 }
 
 void endGame(){
+	TextPen pen = new TextPen();
+
+	if (gameParam['end'] == "W"){
+		pen.gold().text("Voce Ganhou !");
+	} else {
+		pen.red().text("Voce Desistiu !");
+		print("As palavras sao: ");
+		print( gameParam["words"] );
+	}
+
 	Console.centerCursor();
-	new TextPen().gold().text("Voce Ganhou !").print();
+	pen.print();
 	Console.moveCursorDown( gameParam['wordAmount'] +2 );
 	new Prompter('').promptSync();
+	
 }
 
 void input(){
@@ -276,9 +296,13 @@ void process(){
 }
 
 void checkEndGame(){
-	gameParam['end'] = gameParam['visibleWords'].every((w) {
-		return !w.contains('_');
-	});
+	if (gameParam['input'] == "DESISTO")
+	{
+		gameParam['end'] = "L";
+	}
+	else if (gameParam['visibleWords'].every((w) {return !w.contains('_');})) { 
+		gameParam['end'] = "W";
+	}
 }
 
 //Oh meu deus.. que monstruosidade eh essa ?!
